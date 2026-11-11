@@ -1,0 +1,9 @@
+{
+  "//1": "Merge these keys into ~/.claude/settings.json — do not replace the whole file.",
+  "//2": "Built-in advisor is disabled because it re-reads the full chat on every call; use the advisor sub-agent instead.",
+  "model": "sonnet",
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku",
+    "CLAUDE_CODE_DISABLE_ADVISOR_TOOL": "1"
+  }
+}

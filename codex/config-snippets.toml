@@ -1,0 +1,60 @@
+# Codex config snippets — Pragmatic Minimum-Credit Architecture
+# Merge into your ~/.codex/config.toml (do not replace the whole file).
+
+# ---------------------------------------------------------------------------
+# 1) Main Session = Sol medium (Warm Prompt Cache driver)
+#    Handles planning, 1–2 file tasks, and targeted rg/line-range reads
+#    directly on the 97–99% cached main thread without burning "high" effort.
+# ---------------------------------------------------------------------------
+model = "gpt-6.1-sol"
+model_reasoning_effort = "medium"
+plan_mode_reasoning_effort = "high"
+
+# ---------------------------------------------------------------------------
+# 2) Default sub-agent tier & concurrency guards
+#    - max_depth = 1 prevents sub-agents from spawning recursive sub-agents.
+#    - max_threads = 3 caps parallel workers to protect rate limits & credits.
+#    - Unnamed sub-agents spawn on Luna (medium) so they never burn Sol quota.
+#    Named agents in ~/.codex/agents/*.toml:
+#      - sol_explorer          -> gpt-6-luna    (medium, read-only)
+#      - sol_worker            -> gpt-6.1-sol   (medium, workspace-write)
+#      - sol_advisor           -> gpt-6.1-sol   (high,   read-only)
+#      - sol_verifier          -> gpt-6.1-sol   (medium, read-only)
+#      - terra_asset_worker    -> gpt-6.1-terra (medium, workspace-write)
+#      - terra_visual_verifier -> gpt-6.1-terra (medium, read-only)
+# ---------------------------------------------------------------------------
+[agents]
+max_threads = 3
+max_depth = 1
+default_subagent_model = "gpt-6-luna"
+default_subagent_reasoning_effort = "medium"
+
+# ---------------------------------------------------------------------------
+# 3) Compaction discipline (450k window / 360k auto-compact)
+#    Sweet spot for large projects: avoids premature mid-task compaction
+#    (which busts the 99% prompt cache and causes the model to re-read files),
+#    while preventing 500k+ context bloat and attention degradation.
+# ---------------------------------------------------------------------------
+model_context_window = 450000
+model_auto_compact_token_limit = 360000
+
+# ---------------------------------------------------------------------------
+# 4) Disable unused heavy plugins so their tool schemas aren't sent on every turn
+# ---------------------------------------------------------------------------
+[plugins."visualize@openai-bundled"]
+enabled = false
+
+[plugins."documents@openai-primary-runtime"]
+enabled = false
+
+[plugins."pdf@openai-primary-runtime"]
+enabled = false
+
+[plugins."spreadsheets@openai-primary-runtime"]
+enabled = false
+
+[plugins."presentations@openai-primary-runtime"]
+enabled = false
+
+[plugins."template-creator@openai-primary-runtime"]
+enabled = false
